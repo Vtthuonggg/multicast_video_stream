@@ -12,8 +12,6 @@ BUFFER_SIZE = 1024  # Kích thước gói gửi
 
 # Hàm để chọn video
 def choose_video():
-    root = tk.Tk()
-    root.withdraw()  # Ẩn cửa sổ chính
     video_path = filedialog.askopenfilename(title="Chọn video", filetypes=(("MP4 Files", "*.mp4"), ("All Files", "*.*")))
     return video_path
 
@@ -34,7 +32,7 @@ async def stream_video(video_path):
 
     try:
         # Thông báo cho các client WebSocket
-        async with websockets.connect("ws://192.168.1.9:8765") as websocket:
+        async with websockets.connect("ws://192.168.1.8:8765") as websocket:
             await websocket.send("start_stream")
             print("Sent 'start_stream' to server")
 
@@ -55,10 +53,23 @@ async def stream_video(video_path):
         sock.close()
         print("Closed process and socket")
 
-async def main():
-    video_file = choose_video()  # Chọn video từ máy tính
+async def start_stream(video_path):
+    await stream_video(video_path)
+
+def on_choose_video():
+    video_file = choose_video()
     if video_file:
-        await stream_video(video_file)
+        asyncio.run(start_stream(video_file))
+
+def create_gui():
+    root = tk.Tk()
+    root.title("Video Streamer")
+
+    choose_button = tk.Button(root, text="Chọn Video", command=on_choose_video)
+    choose_button.pack(pady=20)
+
+    root.protocol("WM_DELETE_WINDOW", root.quit)
+    root.mainloop()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    create_gui()

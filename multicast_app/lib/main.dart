@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:multicast_app/login_page.dart';
+import 'package:multicast_app/socket_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -24,20 +25,21 @@ class VideoPlayerScreen extends StatefulWidget {
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   late VideoPlayerController _controller;
-  String videoUrl = 'udp://224.1.1.1:5004';
-  late WebSocketChannel channel;
+  String videoUrl = 'udp://224.1.1.1:5004'; // Địa chỉ video multicast
+  final WebSocketClient _socketChannel = WebSocketClient();
 
   @override
   void initState() {
     super.initState();
+    _socketChannel.init();
     _initializeVideoPlayer();
-    _connectWebSocket();
   }
 
+  // Hàm khởi tạo video mới
   void _initializeVideoPlayer() {
     _controller = VideoPlayerController.network(videoUrl)
       ..initialize().then((_) {
-        setState(() {});
+        setState(() {}); // Cập nhật lại giao diện khi video được khởi tạo
         _controller.play();
         log('Video initialized and playing');
       }).catchError((error) {
@@ -45,65 +47,54 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       });
   }
 
-  void _connectWebSocket() {
-    channel = WebSocketChannel.connect(Uri.parse('ws://192.168.1.9:8765'));
-    log('Connected to WebSocket server');
-    channel.stream.listen((message) {
-      log('Received message: $message');
-      if (message == 'refresh_screen') {
-        _refreshScreen();
-      }
-    });
-  }
-
   @override
   void dispose() {
     _controller.dispose();
-    channel.sink.close();
+    _socketChannel.dispose();
     super.dispose();
   }
 
+  // Hàm refresh màn hình khi đổi video
   void _refreshScreen() {
+    log('Refreshing screen...');
+    // Đảm bảo dừng video cũ trước khi thay đổi
+    _controller.pause();
     _controller.dispose();
+
+    // Cập nhật URL video nếu cần thiết
+    videoUrl = 'udp://224.1.1.1:5004'; // Hoặc video khác
+
+    // Khởi tạo video mới với video URL mới
     _initializeVideoPlayer();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Multicast Video Player')),
+      appBar: AppBar(title: const Text('Multicast Video Player')),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
         child: SingleChildScrollView(
           child: Column(
             children: [
               Center(
                 child: _controller.value.isInitialized
-                    ? Expanded(
-                        child: AspectRatio(
-                          aspectRatio: _controller.value.aspectRatio,
-                          child: VideoPlayer(_controller),
-                        ),
+                    ? AspectRatio(
+                        aspectRatio: _controller.value
+                            .aspectRatio, // Cập nhật tỷ lệ khung hình của video
+                        child: VideoPlayer(_controller),
                       )
                     : const CircularProgressIndicator(
                         color: Colors.green,
                       ),
               ),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                    );
-                  },
-                  child: Text('Đăng nhập'))
             ],
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _refreshScreen,
-        child: Icon(Icons.refresh),
+        child: const Icon(Icons.refresh),
       ),
     );
   }
