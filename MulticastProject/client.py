@@ -32,7 +32,7 @@ async def stream_video(video_path):
 
     try:
         # Thông báo cho các client WebSocket
-        async with websockets.connect("ws://192.168.1.8:8765") as websocket:
+        async with websockets.connect("ws://192.168.1.25:8765") as websocket:
             await websocket.send("start_stream")
             print("Sent 'start_stream' to server")
 

@@ -31,7 +31,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void initState() {
     super.initState();
-    _socketChannel.init();
+    _socketChannel.init(_refreshScreen);
     _initializeVideoPlayer();
   }
 
@@ -55,10 +55,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   // Hàm refresh màn hình khi đổi video
-  void _refreshScreen() {
-    log('Refreshing screen...');
-    // Đảm bảo dừng video cũ trước khi thay đổi
-    _controller.pause();
+  void _refreshScreen(String message) {
+    log('Refreshing screen... Message: $message');
     _controller.dispose();
 
     // Cập nhật URL video nếu cần thiết
@@ -93,7 +91,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _refreshScreen,
+        onPressed: () => _refreshScreen('Manual refresh'),
         child: const Icon(Icons.refresh),
       ),
     );
