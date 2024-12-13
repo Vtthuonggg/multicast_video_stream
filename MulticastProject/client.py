@@ -32,7 +32,7 @@ async def stream_video(video_path):
 
     try:
         # Thông báo cho các client WebSocket
-        async with websockets.connect("ws://192.168.1.25:8765") as websocket:
+        async with websockets.connect("ws://192.168.1.8:8765") as websocket:
             await websocket.send("start_stream")
             print("Sent 'start_stream' to server")
 
@@ -61,12 +61,23 @@ def on_choose_video():
     if video_file:
         asyncio.run(start_stream(video_file))
 
+async def send_message(message):
+    async with websockets.connect("ws://192.168.1.8:8765") as websocket:
+        await websocket.send(message)
+        print(f"Sent '{message}' to server")
+
+def on_pause():
+    asyncio.run(send_message("pause"))
+
 def create_gui():
     root = tk.Tk()
     root.title("Video Streamer")
 
     choose_button = tk.Button(root, text="Chọn Video", command=on_choose_video)
     choose_button.pack(pady=20)
+
+    pause_button = tk.Button(root, text="Dừng", command=on_pause)
+    pause_button.pack(pady=20)
 
     root.protocol("WM_DELETE_WINDOW", root.quit)
     root.mainloop()

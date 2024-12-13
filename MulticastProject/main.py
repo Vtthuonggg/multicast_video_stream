@@ -9,13 +9,12 @@ async def notify_clients(websocket, path=None):
     print(f"New connection. Path: {path if path else 'Unknown'}")
     connected_clients.add(websocket)
     try:
-        async for message in websocket:
+         async for message in websocket:
             print(f"Received message: {message}")
-            if message == "start_stream":
-                for client in connected_clients:
-                    if client != websocket:
-                        await client.send("refresh_screen")
-                        print(f"Sent 'refresh_screen' to client")
+            for client in connected_clients:
+                if client != websocket:
+                    await client.send(message)
+                    print(f"Sent '{message}' to client")
     except Exception as e:
         print(f"Error: {e}")
     finally:
@@ -25,8 +24,8 @@ async def notify_clients(websocket, path=None):
 
 
 async def start_server():
-    server = await websockets.serve(notify_clients, "192.168.1.25", 8765)
-    print("WebSocket server started on ws://192.168.1.25:8765")
+    server = await websockets.serve(notify_clients, "192.168.1.8", 8765)
+    print("WebSocket server started on ws://192.168.1.8:8765")
     await asyncio.Future()  # Giữ server chạy mãi mãi
 
 
