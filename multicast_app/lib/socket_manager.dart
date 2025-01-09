@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketClient {
-  final String socketUrl = 'ws://192.168.1.8:8765';
+  final String socketUrl = 'ws://192.168.1.13:8765';
   late WebSocketChannel _channel;
   late Function(String) onMessageReceived;
   void init(Function(String) onMessageReceived) {
@@ -19,8 +19,9 @@ class WebSocketClient {
     });
   }
 
-  void sendMessage(String message) {
-    _channel.sink.add(message);
+  void sendMessage(Map<String, dynamic> message) {
+    String jsonString = jsonEncode(message);
+    _channel.sink.add(jsonString);
   }
 
   void dispose() {

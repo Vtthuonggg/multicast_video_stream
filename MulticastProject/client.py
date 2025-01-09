@@ -32,7 +32,7 @@ async def stream_video(video_path):
 
     try:
         # Thông báo cho các client WebSocket
-        async with websockets.connect("ws://192.168.1.8:8765") as websocket:
+        async with websockets.connect("ws://192.168.1.13:8765") as websocket:
             await websocket.send("start_stream")
             print("Sent 'start_stream' to server")
 
@@ -62,7 +62,7 @@ def on_choose_video():
         asyncio.run(start_stream(video_file))
 
 async def send_message(message):
-    async with websockets.connect("ws://192.168.1.8:8765") as websocket:
+    async with websockets.connect("ws://192.168.1.13:8765") as websocket:
         await websocket.send(message)
         print(f"Sent '{message}' to server")
 

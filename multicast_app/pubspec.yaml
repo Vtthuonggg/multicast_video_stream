@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  font_awesome_flutter: ^10.8.0
   video_player: ^2.5.1
   http: ^0.13.3
   udp: ^5.0.3

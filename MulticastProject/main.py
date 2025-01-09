@@ -24,8 +24,8 @@ async def notify_clients(websocket, path=None):
 
 
 async def start_server():
-    server = await websockets.serve(notify_clients, "192.168.1.8", 8765)
-    print("WebSocket server started on ws://192.168.1.8:8765")
+    server = await websockets.serve(notify_clients, "192.168.1.13", 8765)
+    print("WebSocket server started on ws://192.168.1.13:8765")
     await asyncio.Future()  # Giữ server chạy mãi mãi
 
 
